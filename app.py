@@ -312,26 +312,18 @@ def analyze_resume():
                     "metadata": metadata,
                     "job_description": job_description
                 }
-                
-                # Save to MongoDB
-                mongo_id = mongodb_manager.save_candidate_data(result)
-                
-                # Add MongoDB ID to result
-                result["mongo_id"] = mongo_id
-                
-                # Convert any ObjectId instances in the result
-                serializable_result = convert_objectid_to_str(result)
-                mongodb_manager.close_connection()
-                
-                # Clean up the temporary files
+
+
                 if os.path.exists(file_path):
                     os.remove(file_path)
                 if os.path.exists(txt_file_path):
                     os.remove(txt_file_path)
                 print("Temporary files cleaned up")
                 
-                # Return the serializable result
-                return jsonify(serializable_result), 200
+                # Save to MongoDB
+                mongodb_manager.save_candidate_data(result)
+                mongodb_manager.close_connection()
+                return jsonify ({"message":"candidate data saved successfully"}), 201
                 
             except Exception as e:
                 # Clean up in case of error
@@ -376,6 +368,37 @@ def get_candidate_by_email():
     
     # Convert ObjectId to string using dumps from bson.json_util
     return dumps(candidate), 200, {"Content-Type": "application/json"}
+
+
+
+@app.route("/candidates_summary", methods=["GET"])
+def get_candidates_summary():
+    """
+    Get candidates summary with essential fields only (for better performance)
+    """
+    mongodb_manager = MongoDBManager()
+    
+    try:
+        # Get candidates summary (only essential fields)
+        candidates = mongodb_manager.get_candidates_summary_list()
+        mongodb_manager.close_connection()
+        
+        if not candidates:
+            return jsonify({"error": "No candidates found"}), 404
+        
+        response_data = {
+            "candidates": candidates,
+            "total_returned": len(candidates),
+            "note": "This endpoint returns only essential fields for better performance"
+        }
+        
+        # Convert ObjectId to string using dumps from bson.json_util
+        return dumps(response_data), 200, {"Content-Type": "application/json"}
+        
+    except Exception as e:
+        mongodb_manager.close_connection()
+        print(f"Error in get_candidates_summary: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
 
 @app.route('/health', methods=['GET'])
 def health_check():
