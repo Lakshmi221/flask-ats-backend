@@ -1,5 +1,6 @@
 from pymongo import MongoClient
 from src.config import config
+from bson import ObjectId
 
 class MongoDBManager:
     """Class for MongoDB operations"""
@@ -44,7 +45,74 @@ class MongoDBManager:
         except Exception as e:
             print(f"Error finding candidate in MongoDB: {str(e)}")
             raise
-    
+
+    def delete_candidate_by_id(self, candidate_id):
+        """
+        Delete a candidate by ObjectId
+        
+        Args:
+            candidate_id: ObjectId of the candidate to delete (can be string or ObjectId)
+            
+        Returns:
+            dict: Result of deletion operation with success status and message
+        """
+        try:
+            # Convert string to ObjectId if necessary
+            if isinstance(candidate_id, str):
+                object_id = ObjectId(candidate_id)
+            else:
+                object_id = candidate_id
+                
+            # Delete the document
+            result = self.collection.delete_one({"_id": object_id})
+            
+            if result.deleted_count > 0:
+                return {
+                    "success": True,
+                    "message": f"Candidate with ID {candidate_id} deleted successfully",
+                    "deleted_count": result.deleted_count
+                }
+            else:
+                return {
+                    "success": False,
+                    "message": f"No candidate found with ID {candidate_id}",
+                    "deleted_count": 0
+                }
+                
+        except Exception as e:
+            print(f"Error deleting candidate from MongoDB: {str(e)}")
+            return {
+                "success": False,
+                "message": f"Error deleting candidate: {str(e)}",
+                "deleted_count": 0
+            }
+        
+
+    def find_candidate_by_id(self, candidate_id):
+        """
+        Find a candidate by ObjectId
+        
+        Args:
+            candidate_id: ObjectId of the candidate to find (can be string or ObjectId)
+            
+        Returns:
+            dict: Candidate data or None if not found
+        """
+        try:
+            # Convert string to ObjectId if necessary
+            if isinstance(candidate_id, str):
+                object_id = ObjectId(candidate_id)
+            else:
+                object_id = candidate_id
+                
+            # Find and return the candidate document
+            candidate = self.collection.find_one({"_id": object_id})
+            return candidate
+            
+        except Exception as e:
+            print(f"Error finding candidate in MongoDB: {str(e)}")
+            raise
+            
 
  
     def get_candidates_summary_list(self):
