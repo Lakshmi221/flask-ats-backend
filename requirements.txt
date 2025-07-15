@@ -12,8 +12,7 @@ python-dotenv==1.0.0
 boto3==1.28.44
 
 # MongoDB integration
-pymongo==4.5.0
-
+pymongo==4.13.2
 # OpenAI API
 openai
 
