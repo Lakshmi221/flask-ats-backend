@@ -2,6 +2,7 @@ import json
 from openai import OpenAI
 from datetime import datetime
 from src.config import config
+import re
 
 
 class ResumeAnalyzer:
@@ -11,7 +12,6 @@ class ResumeAnalyzer:
     def clean_resume_text(self, resume_text):
         """Clean resume text to avoid content safety issues"""
         # Remove potential problematic characters or patterns
-        import re
         
         # Remove excessive whitespace
         cleaned = re.sub(r'\s+', ' ', resume_text)
@@ -142,12 +142,12 @@ Please format your entire response as valid JSON with the exact field names abov
                 return {}
             
             # Add debugging prints
-            print("Response status:", response)
+            # print("Response status:", response)
             
             if hasattr(response, 'choices') and response.choices:
                 choice = response.choices[0]
                 print(f"Choice finish_reason: {choice.finish_reason}")
-                print(f"Choice message: {choice.message}")
+                # print(f"Choice message: {choice.message}")
                 
                 # Check for refusal
                 if hasattr(choice.message, 'refusal') and choice.message.refusal:
@@ -159,7 +159,7 @@ Please format your entire response as valid JSON with the exact field names abov
                     return self.try_with_minimal_text(cleaned_resume, cleaned_job_desc)
                 
                 content = choice.message.content
-                print("Content:", content)
+                # print("Content:", content)
                 
                 if content is None:
                     print("Error: Content is None")
@@ -167,10 +167,10 @@ Please format your entire response as valid JSON with the exact field names abov
                 
                 try:
                     result = json.loads(content)
-                    print("Parsed result:", result)
+                    # print("Parsed result:", result)
                 except json.JSONDecodeError as json_err:
                     print(f"JSON decode error: {json_err}")
-                    print(f"Raw content: {repr(content)}")
+                    # print(f"Raw content: {repr(content)}")
                     return {}
             else:
                 print("Error: No choices in response")
