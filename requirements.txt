@@ -20,5 +20,7 @@ openai
 # # WhatsApp/Twilio integration
 # twilio==8.5
 
+gunicorn==21.2.0
+
 
 flask-cors==6.0.0
