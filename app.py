@@ -13,7 +13,7 @@ import time
 from src.config import config
 from src.s3_storage import S3Storage
 from src.mongodb_manager import MongoDBManager
-from src.pdf_extractor import PDFExtractor
+from src.pdf_extractor import PDFTextExtractor
 from src.resume_analyzer import ResumeAnalyzer
 from src.ats_scorer import ATSScorer
 
@@ -52,7 +52,7 @@ def get_services():
         thread_local.services = {
             's3_storage': S3Storage(),
             'mongodb_manager': MongoDBManager(),
-            'pdf_extractor': PDFExtractor(),
+            'pdf_extractor': PDFTextExtractor(languages=['en'], gpu=False),
             'resume_analyzer': ResumeAnalyzer(),
             'ats_scorer': ATSScorer()
         }
@@ -121,6 +121,7 @@ def process_single_resume(file_data: Dict[str, Any], job_description: str,
         
         # Extract text from PDF
         resume_text = services['pdf_extractor'].extract_text(file_path)
+        print("resume text:",resume_text)
         print(f"PDF text extracted successfully for {file_data['filename']}")
         
         # Save resume text to temporary txt file
