@@ -14,7 +14,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
-          python-version: '3.13'
+          python-version: '3.10'  # Azure supports up to 3.11 now
 
       - name: Create and start virtual environment
         run: |
@@ -31,8 +31,6 @@ jobs:
       
       - name: Install dependencies
         run: pip install -r requirements.txt
-        
-      # Optional: Add step to run tests here (PyTest, Django test suites, etc.)
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -46,8 +44,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
@@ -58,14 +56,28 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D6BBDD3A058F4538BC58538B3E09BD94 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3A0D9C55E4E140A48121AB6F48C01C63 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5E1AA8D811334C14BFD131F4B466EA50 }}
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-      - name: 'Deploy to Azure Web App'
+      # Push GitHub secrets to Azure App Service Configuration
+      - name: Set environment variables in Azure Web App
+        run: |
+          az webapp config appsettings set \
+            --name ats-aap-backend \
+            --resource-group ATS-RG \
+            --settings \
+              AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+              AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
+              JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              MONGO_URI=${{ secrets.MONGO_URI }} \
+              OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+              S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
+              S3_REGION=${{ secrets.S3_REGION }}
+
+      - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         id: deploy-to-webapp
         with:
           app-name: 'ats-aap-backend'
           slot-name: 'Production'
-          
