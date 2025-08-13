@@ -61,6 +61,20 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_AB3550BECB2A47DBB54DC41CF2AC824B }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_18C75A9CB21443FE8A6BDCEFF5CDC5D9 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_621440CD496E4650B551EE955E6D5476 }}
+     
+      - name: Set environment variables in Azure Web App
+        run: |
+          az webapp config appsettings set \
+            --name ats-aap-backend \
+            --resource-group ATS-RG \
+            --settings \
+              AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }} \
+              AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }} \
+              JWT_SECRET=${{ secrets.JWT_SECRET }} \
+              MONGO_URI=${{ secrets.MONGO_URI }} \
+              OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+              S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }} \
+              S3_REGION=${{ secrets.S3_REGION }}
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
@@ -68,4 +82,5 @@ jobs:
         with:
           app-name: 'ats-aap-backend'
           slot-name: 'Production'
+
           
