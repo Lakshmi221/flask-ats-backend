@@ -52,9 +52,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D6BBDD3A058F453B8BC5853B83E09BD94 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_3AD09C55E4E140A48121AB6F48C01C63 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_5E1AA8D811334C14BFD131F4B466EA50 }}
 
       # Push GitHub secrets to Azure App Service Configuration
       - name: Set environment variables in Azure Web App
@@ -77,3 +77,4 @@ jobs:
         with:
           app-name: 'ats-aap-backend'
           slot-name: 'Production'
+
