@@ -39,13 +39,13 @@ stages:
       displayName: 'Use Python $(pythonVersion)'
 
     - script: |
-        python -m venv antenv
+        python3.10 -m venv venv
         source antenv/bin/activate
-        python -m pip install --upgrade pip
+        python --version
         pip install setup
         pip install -r requirements.txt
-      workingDirectory: $(projectRoot)
-      displayName: "Install requirements"
+      # workingDirectory: $(projectRoot)
+      displayName: "Use local Python"
 
     - task: ArchiveFiles@2
       displayName: 'Archive files'
