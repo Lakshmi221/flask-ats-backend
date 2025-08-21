@@ -4,27 +4,16 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 trigger:
-- main
+- development
 
 variables:
   group: New variable group 20-Aug
-  # Azure Resource Manager connection created during pipeline creation
   azureServiceConnectionId: '2168b0e6-75d6-4ea0-8c10-455d0f13403d'
-
-  # Web app name
   webAppName: 'Testing-Bckend'
-
-  # Agent VM image name
   vmImageName: 'ubuntu-latest'
-
-  # Environment name
   environmentName: 'Testing-Bckend'
-
-  # Project root folder. Point to the folder containing manage.py file.
   projectRoot: $(System.DefaultWorkingDirectory)
-
   pythonVersion: '3.11'
-  
 
 stages:
 - stage: Build
@@ -34,19 +23,16 @@ stages:
     pool:
       name: ATS-Pool
     steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(pythonVersion)'
-      displayName: 'Use Python $(pythonVersion)'
 
     - script: |
+        python --version
         python -m venv antenv
         source antenv/bin/activate
         python -m pip install --upgrade pip
         pip install setup
         pip install -r requirements.txt
       workingDirectory: $(projectRoot)
-      displayName: "Install requirements"
+      displayName: "Set up Python environment and install dependencies"
 
     - task: ArchiveFiles@2
       displayName: 'Archive files'
@@ -75,10 +61,9 @@ stages:
         deploy:
           steps:
 
-          - task: UsePythonVersion@0
-            inputs:
-              versionSpec: '$(pythonVersion)'
-            displayName: 'Use Python version'
+          - script: |
+              python --version
+            displayName: 'Check Python version on deploy agent'
 
           - task: AzureWebApp@1
             displayName: 'Deploy Azure Web App : Testing-Bckend'
