@@ -7,7 +7,6 @@ trigger:
 - development
 
 variables:
-  azureServiceConnection: 'ats-pipeline-asc'
   group: New variable group 20-Aug
   azureServiceConnectionId: '2168b0e6-75d6-4ea0-8c10-455d0f13403d'
   webAppName: 'ats-pipeline'
@@ -48,13 +47,18 @@ stages:
       workingDirectory: $(Build.SourcesDirectory)
       displayName: "Set up Python environment and install dependencies"
 
+    - script: |
+        echo "Files in build directory before archiving:"
+        ls -la $(Build.SourcesDirectory)
+      displayName: 'Debug: Check build contents'
+
     - task: ArchiveFiles@2
       displayName: 'Archive files'
       inputs:
         rootFolderOrFile: '$(Build.SourcesDirectory)'
         includeRootFolder: false
         archiveType: zip
-        archiveFile: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
+        archiveFile: '$(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip'
         replaceExistingArchive: true
 
     - upload: $(Build.ArtifactStagingDirectory)/$(Build.BuildId).zip
